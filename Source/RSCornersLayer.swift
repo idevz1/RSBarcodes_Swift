@@ -9,28 +9,28 @@
 import UIKit
 import QuartzCore
 
-open class RSCornersLayer: CALayer {
-    open var strokeColor = UIColor.green.cgColor
-    open var strokeWidth: CGFloat = 2
-    open var drawingCornersArray: Array<Array<CGPoint>> = []
-    open var cornersArray: Array<[Any]> = [] {
+public class RSCornersLayer: CALayer {
+    public var strokeColor = UIColor.greenColor().CGColor
+    public var strokeWidth: CGFloat = 2
+    public var drawingCornersArray: Array<Array<CGPoint>> = []
+    public var cornersArray: Array<[AnyObject]> = [] {
         willSet {
-            DispatchQueue.main.async(execute: {
+            dispatch_async(dispatch_get_main_queue(), {
                 self.setNeedsDisplay()
             })
         }
     }
     
-    override open func draw(in ctx: CGContext) {
+    override public func drawInContext(ctx: CGContext) {
         objc_sync_enter(self)
         
-        ctx.saveGState()
+        CGContextSaveGState(ctx)
         
-        ctx.setShouldAntialias(true)
-        ctx.setAllowsAntialiasing(true)
-        ctx.setFillColor(UIColor.clear.cgColor)
-        ctx.setStrokeColor(self.strokeColor)
-        ctx.setLineWidth(self.strokeWidth)
+        CGContextSetShouldAntialias(ctx, true)
+        CGContextSetAllowsAntialiasing(ctx, true)
+        CGContextSetFillColorWithColor(ctx, UIColor.clearColor().CGColor)
+        CGContextSetStrokeColorWithColor(ctx, self.strokeColor)
+        CGContextSetLineWidth(ctx, self.strokeWidth)
         
         for corners in self.cornersArray {
             for i in 0...corners.count {
@@ -40,19 +40,19 @@ open class RSCornersLayer: CALayer {
                 }
                 let dict = corners[idx] as! NSDictionary
                 
-                let x = CGFloat((dict.object(forKey: "X") as! NSNumber).floatValue)
-                let y = CGFloat((dict.object(forKey: "Y") as! NSNumber).floatValue)
+                let x = CGFloat((dict.objectForKey("X") as! NSNumber).floatValue)
+                let y = CGFloat((dict.objectForKey("Y") as! NSNumber).floatValue)
                 if i == 0 {
-                    ctx.move(to: CGPoint(x: x, y: y))
+                    CGContextMoveToPoint(ctx, x, y)
                 } else {
-                    ctx.addLine(to: CGPoint(x: x, y: y))
+                    CGContextAddLineToPoint(ctx, x, y)
                 }
             }
         }
         
-        ctx.drawPath(using: CGPathDrawingMode.fillStroke)
+        CGContextDrawPath(ctx, CGPathDrawingMode.FillStroke)
         
-        ctx.restoreGState()
+        CGContextRestoreGState(ctx)
         
         objc_sync_exit(self)
     }

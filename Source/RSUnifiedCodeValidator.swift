@@ -9,12 +9,12 @@
 import Foundation
 import AVFoundation
 
-open class RSUnifiedCodeValidator {
-    open class var shared: RSUnifiedCodeValidator {
+public class RSUnifiedCodeValidator {
+    public class var shared: RSUnifiedCodeValidator {
         return UnifiedCodeValidatorSharedInstance
     }
     
-    open func isValid(_ contents:String, machineReadableCodeObjectType: String) -> Bool {
+    public func isValid(contents:String, machineReadableCodeObjectType: String) -> Bool {
         var codeGenerator: RSCodeGenerator?
         switch machineReadableCodeObjectType {
         case AVMetadataObjectTypeQRCode, AVMetadataObjectTypePDF417Code, AVMetadataObjectTypeAztecCode:

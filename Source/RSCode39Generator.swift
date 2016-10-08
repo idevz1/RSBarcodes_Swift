@@ -12,7 +12,7 @@ let CODE39_ALPHABET_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*"
 
 // http://www.barcodesymbols.com/code39.htm
 // http://www.barcodeisland.com/code39.phtml
-open class RSCode39Generator: RSAbstractCodeGenerator {
+public class RSCode39Generator: RSAbstractCodeGenerator {
     let CODE39_CHARACTER_ENCODINGS = [
         "1010011011010",
         "1101001010110",
@@ -60,15 +60,16 @@ open class RSCode39Generator: RSAbstractCodeGenerator {
         "1001011011010"
     ]
     
-    func encodeCharacterString(_ characterString:String) -> String {
+    func encodeCharacterString(characterString:String) -> String {
         let location = CODE39_ALPHABET_STRING.location(characterString)
         return CODE39_CHARACTER_ENCODINGS[location]
     }
     
     // MAKR: RSAbstractCodeGenerator
     
-    override open func isValid(_ contents: String) -> Bool {
-        if contents.length() > 0 && contents == contents.uppercased() {
+    override public func isValid(contents: String) -> Bool {
+        let length = contents.length()
+        if length > 0 && contents == contents.uppercaseString {
             for character in contents.characters {
                 let location = CODE39_ALPHABET_STRING.location(String(character))
                 if location == NSNotFound {
@@ -80,15 +81,15 @@ open class RSCode39Generator: RSAbstractCodeGenerator {
         return false
     }
     
-    override open func initiator() -> String {
+    override public func initiator() -> String {
         return self.encodeCharacterString("*")
     }
     
-    override open func terminator() -> String {
+    override public func terminator() -> String {
         return self.encodeCharacterString("*")
     }
     
-    override open func barcode(_ contents: String) -> String {
+    override public func barcode(contents: String) -> String {
         var barcode = ""
         for character in contents.characters {
             barcode += self.encodeCharacterString(String(character))

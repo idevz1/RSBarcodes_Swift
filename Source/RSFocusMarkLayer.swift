@@ -9,72 +9,76 @@
 import UIKit
 import QuartzCore
 
-open class RSFocusMarkLayer: CALayer {
+public class RSFocusMarkLayer: CALayer {
     // Use camera.app's focus mark size as default
-    open var size = CGSize(width: 76, height: 76)
+    public var size = CGSizeMake(76, 76)
     // Use camera.app's focus mark sight as default
-    open var sight: CGFloat = 6
+    public var sight: CGFloat = 6
     // Use camera.app's focus mark color as default
-    open var strokeColor = UIColor("#ffcc00").cgColor
-    open var strokeWidth: CGFloat = 1
-    open var delay: CFTimeInterval = 1
-    open var canDraw = false
+    public var strokeColor = UIColor(rgba: "#ffcc00").CGColor
+    public var strokeWidth: CGFloat = 1
+    public var delay: CFTimeInterval = 1
+    public var canDraw = false
     
-    open var point : CGPoint = CGPoint(x: 0, y: 0) {
+    deinit {
+        print("RSFocusMarkLayer deinit")
+    }
+    
+    public var point : CGPoint = CGPointMake(0, 0) {
         didSet {
-            DispatchQueue.main.async(execute: {
+            dispatch_async(dispatch_get_main_queue(), {
                 self.canDraw = true
                 self.setNeedsDisplay()
             })
             
-            let when = DispatchTime.now() + Double(Int64(self.delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)
-            DispatchQueue.main.asyncAfter(deadline: when, execute: {
+            let when = dispatch_time(DISPATCH_TIME_NOW, Int64(self.delay * Double(NSEC_PER_SEC)))
+            dispatch_after(when, dispatch_get_main_queue(), {
                 self.canDraw = false
                 self.setNeedsDisplay()
             })
         }
     }
     
-    override open func draw(in ctx: CGContext) {
+    override public func drawInContext(ctx: CGContext) {
         if !self.canDraw {
             return
         }
         
-        ctx.saveGState()
+        CGContextSaveGState(ctx)
         
-        ctx.setShouldAntialias(true)
-        ctx.setAllowsAntialiasing(true)
-        ctx.setFillColor(UIColor.clear.cgColor)
-        ctx.setStrokeColor(self.strokeColor)
-        ctx.setLineWidth(self.strokeWidth)
+        CGContextSetShouldAntialias(ctx, true)
+        CGContextSetAllowsAntialiasing(ctx, true)
+        CGContextSetFillColorWithColor(ctx, UIColor.clearColor().CGColor)
+        CGContextSetStrokeColorWithColor(ctx, self.strokeColor)
+        CGContextSetLineWidth(ctx, self.strokeWidth)
         
         // Rect
-        ctx.stroke(CGRect(x: self.point.x - self.size.width / 2.0, y: self.point.y - self.size.height / 2.0, width: self.size.width, height: self.size.height))
+        CGContextStrokeRect(ctx, CGRectMake(self.point.x - self.size.width / 2.0, self.point.y - self.size.height / 2.0, self.size.width, self.size.height))
         
         // Focus
         for i in 0..<4 {
             var endPoint: CGPoint
             switch i {
             case 0:
-                ctx.move(to: CGPoint(x: self.point.x, y: self.point.y - self.size.height / 2.0))
-                endPoint = CGPoint(x: self.point.x, y: self.point.y - self.size.height / 2.0 + self.sight)
+                CGContextMoveToPoint(ctx, self.point.x, self.point.y - self.size.height / 2.0)
+                endPoint = CGPointMake(self.point.x, self.point.y - self.size.height / 2.0 + self.sight)
             case 1:
-                ctx.move(to: CGPoint(x: self.point.x, y: self.point.y + self.size.height / 2.0))
-                endPoint = CGPoint(x: self.point.x, y: self.point.y + self.size.height / 2.0 - self.sight)
+                CGContextMoveToPoint(ctx, self.point.x, self.point.y + self.size.height / 2.0)
+                endPoint = CGPointMake(self.point.x, self.point.y + self.size.height / 2.0 - self.sight)
             case 2:
-                ctx.move(to: CGPoint(x: self.point.x - self.size.width / 2.0, y: self.point.y))
-                endPoint = CGPoint(x: self.point.x - self.size.width / 2.0 + self.sight, y: self.point.y)
+                CGContextMoveToPoint(ctx, self.point.x - self.size.width / 2.0, self.point.y)
+                endPoint = CGPointMake(self.point.x - self.size.width / 2.0 + self.sight, self.point.y)
             case 3:
-                ctx.move(to: CGPoint(x: self.point.x + self.size.width / 2.0, y: self.point.y))
-                endPoint = CGPoint(x: self.point.x + self.size.width / 2.0 - self.sight, y: self.point.y)
+                CGContextMoveToPoint(ctx, self.point.x + self.size.width / 2.0, self.point.y)
+                endPoint = CGPointMake(self.point.x + self.size.width / 2.0 - self.sight, self.point.y)
             default:
-                endPoint = CGPoint(x: 0, y: 0)
+                endPoint = CGPointMake(0, 0)
             }
-            ctx.addLine(to: CGPoint(x: endPoint.x, y: endPoint.y))
+            CGContextAddLineToPoint(ctx, endPoint.x, endPoint.y)
         }
         
-        ctx.drawPath(using: CGPathDrawingMode.fillStroke)
+        CGContextDrawPath(ctx, CGPathDrawingMode.FillStroke)
         
-        ctx.restoreGState()
+        CGContextRestoreGState(ctx)
     }
 }

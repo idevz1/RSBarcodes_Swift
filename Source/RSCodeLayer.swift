@@ -9,16 +9,16 @@
 import UIKit
 import QuartzCore
 
-open class RSCodeLayer: CALayer {
+public class RSCodeLayer: CALayer {
     var code: UIImage?
     
-    override open func draw(in ctx: CGContext) {
+    override public func drawInContext(ctx: CGContext) {
         if let code = self.code {
-            ctx.saveGState()
+            CGContextSaveGState(ctx)
             
-            ctx.draw(code.cgImage!, in: self.bounds)
+            CGContextDrawImage(ctx, self.bounds, code.CGImage!)
             
-            ctx.restoreGState()
+            CGContextRestoreGState(ctx)
         }
     }
 }
